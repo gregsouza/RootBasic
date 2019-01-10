@@ -1,0 +1,8 @@
+
+
+void readTst(){
+
+  TFile* f = new TFile("convData.root", "read");
+
+  
+}

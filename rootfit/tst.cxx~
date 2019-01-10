@@ -1,0 +1,13 @@
+#include "includes.h"
+
+using namespace RooFit;
+
+void fitData(){
+  
+  TFile* f = new TFile("convData.root", "read");
+  
+  RooDataSet* fdata = (RooDataSet*) gDirectory->Get("exgData");
+
+  RooRealVar x("x", "x", 0., 10.);
+  RooDataSet data("data", "dataset", fdata, x);
+}
