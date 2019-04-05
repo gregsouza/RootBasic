@@ -56,10 +56,58 @@ void regularDecay(){
 }
 
 
-class ArgonCint: public RooAbsAnaConvPdf;
-//See RooDecay implementation
-//Implemet Afast/Tfast exp(fast) + Aslow/Tslow exp(slow)
-//Create RooArapuca.h
+class my_DoubleExp: public RooAbsAnaConvPdf{
+
+private:
+  RooRealProxy _t;
+  RooRealProxy _Afast, _Aslow, _Tfast, _Tslow;
+    Int_t _basis;
+  
+public:
+  my_DoubleExp(const char *name, const char *title, RooRealVar& t,
+	        RooAbsReal& Afast, RooAbsReal& Aslow,
+	       RooAbsReal& Tfast, RooAbsReal& Tslow,
+	       const RooResolutionModel& model):
+    RooAbsAnaConvPdf(name, title, model, t),
+    _t("t","time",this, t),
+    _Afast("Afast", "Fast", this, Afast),
+    _Aslow("Aslow", "Slow Component", this, Aslow),
+    _Tfast("Tfast", "Fast Tau", this, Tfast),
+    _Tslow("Tslow", "Slow Tau", this, Tslow)
+  {
+    _basis = declareBasis("(@1/@3)*exp(-@0/@3)+(@2/@4)*exp(-@0/@4)", RooArgList(Afast, Aslow, Tfast, Tslow));
+    genContext(t);
+  }
+
+  //Copy Constructor
+  my_DoubleExp(const my_DoubleExp& other, const char* name):
+    RooAbsAnaConvPdf(other, name),
+    _t("t","time",this, other._t),
+    _Afast("Afast", "Fast", this, other._Afast),
+    _Aslow("Aslow", "Slow Component", this, other._Aslow),
+    _Tfast("Tfast", "Fast Tau", this, other._Tfast),
+    _Tslow("Tslow", "Slow Tau", this, other._Tslow) {}
+
+  //Destructor
+  ~my_DoubleExp() {}
+
+  virtual TObject* clone(const char* newname) const{
+    return new my_DoubleExp(*this, newname);
+  }
+
+  Double_t coefficient(Int_t basisIndex) const{
+    switch(basisIndex)
+      {
+      case 1: return _Afast;
+      case 2: return _Aslow;
+      case 3: return _Tfast;
+      case 4: return _Aslow;
+      default: return 0;
+      }
+    
+  }  
+};
+
 
 void genericDecay(){
 
@@ -69,7 +117,7 @@ void genericDecay(){
   //Gaussian Distribution as resolution model
   RooRealVar mean("mean","mean", 100.);
   RooRealVar sigma("sigma", "gaussian spread", 10.);
-  RooGaussian gaussm("gauss", "guass(t ;mean,sigma)", t, mean, sigma);
+  RooGaussModel gaussm("gauss", "guass(t ;mean,sigma)", t, mean, sigma);
 
   //Generic PDF for analitical convolution
   //basis variables
@@ -77,16 +125,8 @@ void genericDecay(){
   RooRealVar Aslow("Aslow", "Aslow", 0.5);
   RooRealVar Tfast("Tfast", "Tfast", 120.);
   RooRealVar Tslow("Tslow", "Tslow", 1200.);
-  
-  //RooAbsAnaConvPdf cintModel("model", "model",
-		   gaussm, t);
 
-  //cintModel.declareBasis("Afast*exp(-t/Tfast) + Aslow*exp(-t/Tslow)",
-  //	 RooArgSet(t, Afast,Tfast, Aslow, Tslow));
-
-
-  
-    
+  my_DoubleExp cintModel("cint", "cint", t, Afast, Aslow, Tfast, Tslow, gaussm );
   
   RooPlot* frame = t.frame();
   cintModel.plotOn(frame);

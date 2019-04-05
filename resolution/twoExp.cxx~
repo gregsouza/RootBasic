@@ -1,9 +1,0 @@
-#include "/usr/local/root/include/RooRealVar.h"
-using namespace RooFit;
-
-void twoExps(){
-
-  RooRealVar t("t", "t", 0., 6000.);
-  
-  
-}
