@@ -96,16 +96,7 @@ public:
   }
 
   Double_t coefficient(Int_t basisIndex) const{
-    switch(basisIndex)
-      {
-      case 1: return _Afast;
-      case 2: return _Aslow;
-      case 3: return _Tfast;
-      case 4: return _Aslow;
-      default: return 0;
-      }
-    
-  }  
+    return 0; 
 };
 
 

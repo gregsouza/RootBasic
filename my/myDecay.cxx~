@@ -1,0 +1,116 @@
+#include <iostream>
+#include "/usr/local/root/include/RooRealVar.h"
+
+using namespace RooFit;
+
+class my_Decay: public RooAbsAnaConvPdf{
+protected:
+  RooRealProxy _t; //time proxy
+  RooRealProxy _tau; //tau proxy
+  RooRealProxy _A;
+  Int_t _basis; //basis code
+  //  Int_t _otherBasis;
+  
+public:
+  //Constrcutor================================
+  my_Decay(const char *name, const char *title,
+	   RooRealVar& t, RooAbsReal &tau,
+	   RooAbsReal& A,
+	   const RooResolutionModel& model):
+    RooAbsAnaConvPdf(name,title, model, t),
+    _t("t","time", this, t),
+    _tau("tau", "tau", this, tau),
+    _A("A", "A", this, A)
+  {
+    _basis = declareBasis("exp(-@0/@1)", tau);
+    //    _otherBasis = declareBasis("exp(@0/@1)", tau);
+  }
+
+  //Copy Constructor ====================================
+  my_Decay(const my_Decay& other, const char* name):
+    RooAbsAnaConvPdf(other, name),
+    _t("t", "time", this, other._t),
+    _tau("tau", "tau", this, other._tau ),
+    _A("A","A", this, other._A),
+    _basis(other._basis)
+    //   _otherBasis(other._otherBasis)
+  {}
+  //Destructor ======================
+  ~my_Decay() {}
+
+  //Clone and Coefficient
+  virtual TObject* clone(const char* newname) const{
+    return new my_Decay(*this, newname);
+  }
+
+  Double_t coefficient(Int_t basisIndex) const{
+
+    std::cout<<"Hi 1 \n";
+    if(basisIndex==_basis){
+      std::cout<<"Hi 2 \n";
+      return _A;
+    }
+    std::cout<<"Hi 3 \n";
+    return 0;
+  }
+
+  RooArgSet* coefVars(Int_t basisIndex) const{
+
+    if(basisIndex == _basis){
+      return _A.arg().getVariables();
+    }
+    return 0;
+    
+  }
+  
+ 
+  Int_t getGenerator(const RooArgSet& directVars, RooArgSet &generateVars, Bool_t /*staticInitOK*/) const
+  {
+    if (matchArgs(directVars,generateVars,_t)) return 1 ;
+    return 0 ;
+  }
+  
+};
+
+
+void myDecay(){
+  //time
+  RooRealVar t("t", "t", 0., 5000.);
+
+  //gaussian model
+  RooRealVar mean("mean", "mean", 1000.);
+  RooRealVar sigma("sigma", "sigma", 100.);
+  RooGaussModel gaussm("gauss", "gauss", t, mean, sigma);
+  
+  //decay distribution
+  RooRealVar tau("tau", "tau", 100.);
+  RooRealVar A("A","A", 10.);
+  RooRealVar B("B","B", 20.);
+
+  //RooDecay d("Decay", "Decay", t, tau, gaussm, RooDecay::SingleSided);
+  my_Decay d("Decay", "My Decay", t, tau, A, gaussm);
+
+  RooPlot* frame = t.frame();
+  d.plotOn(frame);
+
+  frame->Draw();
+
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

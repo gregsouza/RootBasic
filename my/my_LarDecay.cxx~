@@ -1,0 +1,110 @@
+#include <iostream>
+#include "/usr/local/root/include/RooRealVar.h"
+
+using namespace RooFit;
+
+class my_LarDecay: public RooAbsAnaConvPdf{
+protected:
+  RooRealProxy _t; //time proxy
+  RooRealProxy _fastTau, _slowTau; //Fast and slow decay
+  RooRealProxy _fast;
+  RooRealProxy _slow; //fast and slow component
+  int _fastBasis;
+  int _slowBasis;
+
+public:
+  //Constructor =============================
+  my_LarDecay(const char *name, const char *title,
+	      RooRealVar& t, RooAbsReal& fastTau,
+	      RooAbsReal& slowTau, RooAbsReal &fast,
+	      RooAbsReal &slow, const RooResolutionModel& model ):
+    RooAbsAnaConvPdf(name, title, model, t),
+    _t("t","time", this, t),
+    _fastTau("fastTau", "fast Lifetime", this, fastTau),
+    _slowTau("slowTau", "slow Lifetime", this, slowTau),
+    _fast("fast", "fast basis", this, fast),
+    _slow("slow", "slow basis",this, slow)
+  {
+
+    _fastBasis = declareBasis("exp(-@0/@1)", fastTau);
+    _slowBasis = declareBasis("exp(-@0/@1)", slowTau);
+    
+  }
+
+  //Copy Constructor========================
+  my_LarDecay(const my_LarDecay& other, const char* name):
+    RooAbsAnaConvPdf(other, name),
+    _t("t","time", this, other._t),
+    _fastTau("fastTau", "fast Lifetime", this, other._fastTau),
+    _slowTau("slowTau", "slow Lifetime", this, other._slowTau),
+    _fast("fast", "fast basis", this, other._fast),
+    _slow("slow", "slow basis",this, other._slow),
+    _fastBasis(other._fastBasis),
+    _slowBasis(other._slowBasis) {  }
+
+  //Destructor ==============================
+    ~my_LarDecay() {}
+
+  //Clone =======================================
+  virtual TObject* clone(const char* newname) const{
+    return new my_LarDecay(*this, newname);
+  }
+
+  //coefficient =================================
+  Double_t coefficient(Int_t basisIndex) const
+  {
+
+       if(basisIndex == _fastBasis){
+    return 0.77;
+    }
+    if(basisIndex == _slowBasis){
+    return 0.33;
+    }
+
+    return 1;
+  }
+  
+  
+};
+
+void myLarDecay(){
+  //time
+  RooRealVar t("t", "t", 0., 5000.);
+
+  //gaussian model
+  RooRealVar mean("mean", "mean", 100.);
+  RooRealVar sigma("sigma", "sigma", 50.);
+  RooGaussModel gaussm("gauss", "gauss", t, mean, sigma);
+  
+  //decay distribution
+  RooRealVar tau1("tau", "tau", 6.);
+  RooRealVar tau2("tau2", "tau2", 1300.);
+  RooRealVar A1("A1", "A1", 2.);
+  RooRealVar A2("A2", "A2", 1.);
+  //RooDecay d("Decay", "Decay", t, tau, gaussm, RooDecay::SingleSided);
+  my_LarDecay d("Decay", "My Decay", t, tau1, tau2,A1, A2, gaussm);
+
+  RooPlot* frame = t.frame();
+  d.plotOn(frame);
+
+  frame->Draw();
+
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
