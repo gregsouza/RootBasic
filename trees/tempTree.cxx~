@@ -1,0 +1,35 @@
+
+struct temp_t{
+
+  char country[16];
+  float temp;
+  int year;
+  
+};
+
+
+void tempTree(){
+  //data struch
+  temp_t records;
+ 
+  //Opening the file
+  FILE *fp=fopen("temp.dat", "r");
+  char line[36];
+  //ROOT file
+  TFile *f = new TFile("temps.root", "RECREATE");
+  //Create Tree
+  TTree *tree = new TTree("T", "temp data from input file");
+  //Creating a Branch with all the information
+  tree->Branch("records", records.country, "country[16]/C:temp/F:year/I");
+  //Filling the tree with the values in the file
+  while(fgets(line,36, fp)){
+    sscanf(&line[0], "%s %f %d", records.country, &records.temp, &records.year);
+    std::cout << records.temp << "   " <<records.year <<"  ";
+    tree->Fill();
+  }
+
+  tree->Print();
+  fclose(fp);
+  f->Write();
+  
+}

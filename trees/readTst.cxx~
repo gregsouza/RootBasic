@@ -1,0 +1,20 @@
+
+main(){
+
+  FILE *fp=fopen("temp.dat","r");
+  std::string Name;
+  double temp;
+  int year;
+
+  char line[81];
+  while(fgets(&line,80, fp)){
+    sscanf(&line[0], "%s", Name);
+    sscanf(&line[16], "%f", temp);
+    sscanf(&line[32], "%d", year);
+
+    std::cout << Name << "\t" << temp << "\t" << year <<"\n";
+    
+  }
+  
+  
+}

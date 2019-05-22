@@ -188,8 +188,6 @@ void readData(string name, Int_t linhas){
     getMyBaseline(rootfile,rootfilecopy);
 }
 
-
-
 void getMyBaseline(string rootfile, string rootfilecopy){
     
     TFile *f1 = new TFile(rootfilecopy.c_str(),"UPDATE");
@@ -250,7 +248,6 @@ void getMyBaseline(string rootfile, string rootfilecopy){
 
     TF1 *func = new TF1("func","gaus",0,2055);
     
-
     Int_t aux = 0;
     for(Long_t i = 0; i < nentries; i++){
         t1->GetEntry(i);

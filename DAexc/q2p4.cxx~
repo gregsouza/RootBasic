@@ -1,0 +1,8 @@
+#include <vector>
+
+void dataW(void){
+
+  std::vector<int> clas = {22,48,76,10,22,4,68,44,10,76,14,56}
+  
+  
+}
