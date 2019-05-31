@@ -1,0 +1,10 @@
+#include <iostream>
+#include <vector>
+
+main(){
+
+  std::vector<double> speeds = {299798000, 29978900,
+				299797000};
+  
+  
+}

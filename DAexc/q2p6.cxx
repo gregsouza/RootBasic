@@ -1,5 +1,8 @@
 #include <iostream>
 
+double binnedMean(const TH1I* hist);
+double binnedMedian(const TH1I* hist);
+
 void treeW(){
   //Input File
   FILE *fp=fopen("dat26.dat","r");
@@ -20,8 +23,8 @@ void treeW(){
   f->Write();
 }
 
-void treeR(){
-  TFile *f = new TFile("dat26.root");
+void treeH(){
+  TFile *f = new TFile("dat26.root", "UPDATE");
 
   //Setting hist
   TH1I* hist = new TH1I("h","Hist", 8, 30, 90);
@@ -37,15 +40,100 @@ void treeR(){
     hist->Fill(n);
   }
 
-  hist->Draw();
-  std::cout<< hist->GetBin(2) <<"\t"<<
-    hist->GetBinCenter(2) <<"\t" << hist->GetBinContent(2) << "\t"<<
-    hist->GetNbinsX() << "\n";
+  f->Write();
   
   
 }
 
+void treeM(){
+  //It'll find Mean mode and median, binned and unbinned
+
+  TFile *f = new TFile("dat26.root");
+
+  //BINNED STUFF
+  TH1I *hist = (TH1I*) f->Get("h");
+
+  double bMode;
+  int NbinMode, bModeHeight;
+  bModeHeight = hist->GetMaximum();
+  NbinMode = hist->GetMaximumBin();
+  bMode = hist->GetBinCenter(NbinMode);
+
+  double bMean;
+  bMean = binnedMean(hist);
+
+  double bMedian;
+  bMedian= binnedMedian(hist);
+
+  double mean;
+  mean = hist->GetMean();
+
+  double median(0), a;
+  a=0.5;
+  hist ->GetQuantiles(1,&median, &a);
+
+  double mode(0), binMode(0),modeHeight(0);
+  //rebinn
+  hist->SetBins(68,22,90);
+  modeHeight = hist->GetMaximum();
+  binMode = hist->GetMaximumBin();
+  mode = hist->GetBinCenter(NbinMode);
+  
+
+  
+  std::cout <<"\n bin Median:  "  << bMedian <<
+    "\t Median  "<< median << "\n";
+
+  
+  std::cout<<"\n Bin Mean:  " << bMean <<
+    "\t Mean:  " << mean <<"\n";
+
+  std::cout <<"\nMode \t Bin N \t Bin Value \t X-Value \n";
+  std::cout << "Binned \t " << NbinMode << "\t     " <<
+    bModeHeight<< "\t \t"<< bMode <<"\n";
+  std::cout << "Binned \t " << binMode << "\t     " <<
+    modeHeight<< "\t \t"<< mode <<"\n";
+  
+  std::cout << NbinMode;
+  
+ 
+  
+  
+}
+
+double binnedMean(const TH1I* hist){
+  double bMean(0);
+  int Nbins;
+  double bCenter, bHeight, bNorm=0;
+  Nbins = hist-> GetNbinsX();
+  for(int i=0; i<Nbins; i++){
+    bCenter = hist->GetBinCenter(i);
+    bHeight = hist->GetBinContent(i);
+    bMean+= bCenter*bHeight;
+    bNorm+= bHeight;
+  }
+  bMean = bMean/bNorm;
+  return bMean;
+}
+
+double binnedMedian(const TH1I* hist){
+  double bMedian;
+  int Nbins;
+  Nbins = hist->GetNbinsX();
+  double integrated(0);
+  int nentries;
+  nentries = hist->GetEntries();
+  int i=0;
+  while(integrated<nentries/2.0){
+    integrated+=hist->GetBinContent(i);
+    i++;
+  }
+  bMedian = hist->GetBinCenter(i);
+  return bMedian;
+}
 void q2p6(){
-  treeR();
+
+  treeM();
+  return;
   
 }
