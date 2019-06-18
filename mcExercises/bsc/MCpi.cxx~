@@ -1,0 +1,49 @@
+#include <iostream>
+#include <random>
+#include <ctime>
+#include <cmath>
+
+namespace MyRandom{
+  
+  std::mt19937 mersenne(static_cast<std::mt19937::result_type>(std::time(nullptr)));
+  
+  double uniform(double min, double max){
+    std::uniform_real_distribution<double> u(min, max);
+    return u(MyRandom::mersenne);
+  }
+  
+}
+
+double estimatePI(int Nevents);
+
+int main(void){
+
+  int tries(0);
+  for(int i=1; i<6; i++){
+
+    tries = std::pow(10., i);
+    std::cout <<  tries << "\t" <<  estimatePI(tries) <<"\n";
+    
+  }
+    
+}
+
+
+double estimatePI(int Nevents){
+  
+  int accepted(0);
+  double x(0), y(0);
+  for(int i=0; i< Nevents; i++){
+    x = MyRandom::uniform(0, 1);
+    y = MyRandom::uniform(0, 1);
+
+    if( x*x+y*y < 1)
+      accepted++;
+  }
+
+  if(accepted)
+    return (double) 4*accepted/Nevents;
+
+  return -1;
+  
+}

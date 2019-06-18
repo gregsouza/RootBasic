@@ -1,0 +1,80 @@
+#include <iostream>
+#include <random>
+#include <ctime>
+#include <cmath>
+
+
+namespace MyRandom{  
+  std::mt19937 mersenne(static_cast<std::mt19937::result_type>(std::time(nullptr)));
+  
+  double uniform(double min, double max){
+    std::uniform_real_distribution<double> u(min, max);
+    return u(MyRandom::mersenne);
+  };
+}
+
+double xint(int64_t Ntries, int n);
+
+int main(){
+
+}
+
+void polInt(){
+  TFile *f = new TFile("polUni.root", "RECREATE");
+  
+  double trueValue(0);
+  double mcInt(0);
+  double error(0);
+  int64_t Ntries(0);
+
+  TTree* T = new TTree("T", "Integral Tree");
+  T->Branch("integral", &mcInt, "mcInt/D");
+  T->Branch("error", &error, "error/D");
+  T->Branch("tries", &Ntries, "Ntries/I");
+
+  int n(7);
+  trueValue = (double) 1/(n+1);
+
+  std::cout<<trueValue <<"\n";
+  
+  for(int i=1; i<10; i++){
+    Ntries = std::pow(10,i);
+    mcInt = xint(Ntries, n);
+    error = std::fabs((mcInt-trueValue)/trueValue);
+
+    std::cout << "Step: " << i << " value: " << mcInt <<"\n";
+    
+    T->Fill();
+  }
+
+  T->Scan();
+
+  f->Write();
+  
+}
+
+double xint(int64_t Ntries, int n){
+
+  int64_t accepted(0);
+
+  double r(0),u(0);
+  double umax(1);
+  for(int64_t i=0; i<Ntries; i++){
+    r = MyRandom::uniform(0,1);
+    u = MyRandom::uniform(0,1);
+
+    if(std::pow(r,n) > u)
+      accepted++;
+    
+  }
+
+  if(accepted){
+
+    return (double) accepted/Ntries;
+    
+  }
+
+  
+  return xint(Ntries, n);
+}
+

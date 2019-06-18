@@ -1,0 +1,43 @@
+#include <iostream>
+#include <cmath>
+
+
+
+void logPlot(){
+
+  char filename[]="MCpi.root";
+  char treeName[]="Pies";
+  char xbranch[]="Ntries";
+  char ybranch[]="error";
+  
+  TFile* f = new TFile(filename, "READ");
+  TTree* T = (TTree*) f->Get(treeName);
+
+  auto x(0);
+  double y(0);
+
+  T->SetBranchAddress(xbranch, &x);
+  T->SetBranchAddress(ybranch, &y);
+
+  TCanvas* c = new TCanvas("c", "canvas");
+  TGraph* gr = new TGraph();
+  
+  int64_t nentries = T->GetEntries();
+  for(int i=0; i<nentries; i++){
+    T->GetEntry(i);
+    gr->SetPoint(i,(double) x,(double) y);
+  }
+
+  c->SetLogx();
+  c->SetLogy();
+  
+  gr->Draw("*");
+
+
+  c->Draw();
+  
+}
+
+void analRoots(){
+  logPlot();
+}
