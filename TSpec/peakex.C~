@@ -1,0 +1,10 @@
+#include "TCanvas.h"
+#include "TMacro.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TRandom.h"
+#include "TSpectrum.h"
+#include "TVirtualFitter.h"
+
+
+Int_t npeaks =30;

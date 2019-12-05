@@ -1,0 +1,19 @@
+/* Example in $ROOTSYS/tutorials/fit/lfit.C */
+
+
+#include "TMinuit.h"
+
+#define N 5
+
+namespace dataP{
+  Float_t z[N], x[N], y[N], errorz[N];
+}
+
+Double_t func(float x, float y, Double_t *par)
+{
+  //This is the distribution of Z in term of x,y ; par
+  Double_t value=( (par[0]*par[0])/(x*x)-1)/ ( par[1]+par[2]*y-par[3]*y*y);
+}
+
+
+

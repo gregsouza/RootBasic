@@ -55,8 +55,9 @@ void tree1w()
 
    //fill the tree
    for (Int_t i=0;i<10000;i++) {
-     gRandom->Rannor(px,py);
-     pz = px*px + py*py;
+     px = i+0.1;
+     py = i+0.2;
+     pz = i+0.3;
      random = gRandom->Rndm();
      ev = i;
      t1.Fill();
@@ -84,29 +85,21 @@ void tree1r()
    t1->SetBranchAddress("random",&random);
    t1->SetBranchAddress("ev",&ev);
 
-   //create two histograms
-   TH1F *hpx   = new TH1F("hpx","px distribution",100,-3,3);
-   TH2F *hpxpy = new TH2F("hpxpy","py vs px",30,-3,3,30,-3,3);
-
-   //read all entries and fill the histograms
-   Long64_t nentries = t1->GetEntries();
-   for (Long64_t i=0;i<nentries;i++) {
+   
+   Float_t *ptr;
+   for(int i=0; i<100; i++){
      t1->GetEntry(i);
-     hpx->Fill(px);
-     hpxpy->Fill(px,py);
-  }
 
-  //we do not close the file. We want to keep the generated histograms
-  //we open a browser and the TreeViewer
-  if (gROOT->IsBatch()) return;
-  new TBrowser();
-  t1->StartViewer();
-  // in the browser, click on "ROOT Files", then on "tree1.root".
-  //     you can click on the histogram icons in the right panel to draw them.
-  // in the TreeViewer, follow the instructions in the Help button.
+     if(!i)
+       ptr = &px;
+     
+     std::cout << px << "\t"<< *ptr  <<"\n";
+     
+   }
+
 }
 
-void tree1() {
+void treeG() {
    tree1w();
    tree1r();
 }

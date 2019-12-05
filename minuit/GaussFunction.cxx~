@@ -1,0 +1,68 @@
+#include <vector>
+
+
+class FCNData{
+
+private:
+  std::vector<Double_t> m_pos, m_measure, m_Merror;
+  
+public:
+
+  FCNData() {}
+  
+  FCNData(std::vector<Double_t>& pos, std::vector<Double_t>& measure,
+  	  std::vector<Double_t>& Merror  ):
+    m_pos(pos), m_measure(measure), m_Merror(Merror)
+  {}
+
+
+  Double_t modelChiSq(double &height, double &mean, double &sigma){
+
+    int nentries = m_pos.size();
+    
+    Double_t gModel, chiSq(0);
+    for(int i=0; i<nentries ; i++){
+      gModel = height*TMath::Gaus(m_pos[i], mean, sigma, true);
+      
+      chiSq+=(gModel - m_measure[i])*(gModel - m_measure[i])/m_Merror[i];
+    }
+
+    return chiSq;
+    
+  }
+    
+};
+
+
+
+
+void GaussFunction(){
+
+  Int_t nbins(100);
+  Double_t xlow(0), xup(3);
+  
+  TH1D* h1 = new TH1D("h1", "My Hist", nbins, 0, 3);
+  TF1* f1 = new TF1("f1", "gaus", 0,3);
+
+  Double_t genMean(1.532), genSigma(0.734);
+  f1->SetParameters(1.0, genMean, genSigma);
+
+  h1->FillRandom("f1", 10000);
+
+  std::vector<Double_t> pos, measure, Merror;
+  
+  for(int i=0; i<nbins; i++){
+
+    if(h1->GetBinError(i)){
+    //Setting bin position
+    pos.push_back(  h1->GetBinCenter(i)  );
+    //bin content
+    measure.push_back(  h1->GetBinContent(i)  );
+    //bin error
+    Merror.push_back(  h1->GetBinError(i)  );
+
+    // std::cout << pos.back() << "\t" << measure.back() << "\t" << Merror.back() << "\n";
+    }
+  }
+  
+}

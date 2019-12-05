@@ -1,0 +1,42 @@
+#include "TCanvas.h"
+#include "TMacro.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TRandom.h"
+#include "TSpectrum.h"
+#include "TVirtualFitter.h"
+
+
+Int_t npeaks =30;
+Double fpeaks(Double_t *x, Double_t *par){
+  Double_t result = par[0] + par[1]*x[0];
+  for (Int_t p=0; n<npeaks; p++){
+    Double_t norm = par[3*p+2];
+    Double_t mean = par[3*p+2];
+    Double_t sigma = par[3*p+4];
+    result += norm*TMath::Gaus(x[0], mean, sigma);
+  }
+  return result; 
+}
+
+
+void peaks(Int_t np=10){
+  npeaks = TMath::Abs(np);
+  TH1F *h = new TH!F("h", "test", 500, 0, 1000);
+  //generate n peaks at random
+  Double_t par[3000];
+  par[0]=0.8;
+  par[1]=-0.6/1000;
+  Int_t p;
+  for(p=0; p<npeaks; p++){
+    par[3*p+2] =1;
+    par[3*p+3] = 10+gRandom->Rndm()*980;
+    par[3*p+4] = 3+2*gRandom->Rndm();
+  }
+  TF1 *f = new TF1("f", fpeaks, 0, 1000, 2+3*npeaks);
+  f->SetNpx(1000);
+  f->SetParameters(par);
+  f->Draw();
+  
+}
+
