@@ -1,0 +1,40 @@
+
+
+int Fibonacci(int n){
+
+  if(n<2)
+    return n;
+  else{
+    int x[2];
+    ROOT::Experimental::TTaskGroup tg;
+
+    
+    tg.Run([&] {x[0]=Fibonacci(n-1);});
+    tg.Run([&] {x[1]=Fibonacci(n-2);});
+    tg.Wait();
+
+    return x[0]+x[1];
+    
+  }
+  
+}
+
+void ex3task(){
+
+  ROOT::EnableImplicitMT(8);
+  const Int_t nWorkers(10);
+  std::vector<Int_t> fibs;
+  for(int i=0; i<nWorkers; i++) fibs.push_back(40+i);
+
+  auto workItem =[](Int_t fib){
+    
+    std::cout << fib <<"\t" <<Fibonacci(fib) << "\n";
+    
+    return 0;
+  };
+
+  ROOT::TProcessExecutor workers(nWorkers);
+
+  workers.Map(workItem, fibs);
+  
+}

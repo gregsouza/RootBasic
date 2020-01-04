@@ -1,0 +1,7 @@
+
+
+void tst(const char* str){
+
+  std::cout<<"hello world \n";
+  
+}

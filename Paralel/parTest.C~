@@ -1,0 +1,26 @@
+
+
+void ex2Paralel(){
+  const UInt_t nNumbers=20000000U;
+  const Int_t nWorkers=6;
+
+
+  TFile f("myFile.root", "RECREATE");
+  
+  auto workItem = [](UInt_t workerID){
+
+    TRandom3 workerRndm(workerID);
+    TH1F h(Form("myHisto_%u", workerID), "The Histogram", 64, -4, 4);
+    for(UInt_t i=0; i<nNumbers; ++i)
+      h.Fill(workerRndm.Gaus());
+
+    h.Write();
+    return 0;
+  };
+
+  ROOT::TProcessExecutor workers(nWorkers);
+
+  workers.Map(workItem, ROOT::TSeqI(nWorkers));
+  
+  
+}
